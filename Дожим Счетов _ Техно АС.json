@@ -1,0 +1,1495 @@
+{
+  "name": "Дожим Счетов | Техно АС",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "deal-followup",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        80,
+        16
+      ],
+      "id": "1980d5f6-8711-4073-8c4f-fb476ba3a00f",
+      "name": "Webhook",
+      "webhookId": "beec1a55-ef98-4940-99a3-c5fcc88f2fb9"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f3f6c360-15ef-453a-80e5-5e3098d7513e",
+              "name": "link",
+              "value": "https://bt24.technoac.ru/rest/6/n556qpb01os4cxgf/",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        320,
+        16
+      ],
+      "id": "4eb1af5b-1587-4a4d-b518-903493e491c3",
+      "name": "basic_link"
+    },
+    {
+      "parameters": {
+        "sendTo": "=zakhar.proger@gmail.com",
+        "subject": "=ТЕХНО-АС {{ $('getDeal').item.json.result.COMMENTS.split(\"от\")[0]  }}для {{ $('get company').last().json.result.TITLE }}",
+        "emailType": "text",
+        "message": "=Уважаемый клиент!\n\nТолько что отправил(а) вам на почту {{ $('getDeal').item.json.result.COMMENTS }} на сумму {{ $('getDeal').item.json.result.OPPORTUNITY}} руб. — согласно вашей заявке.\n\nПрошу подтвердить получение счета и дату оплаты.\nЕсли остались какие-то вопросы по счету или номенклатуре, свяжитесь со мной по контактам в подписи. \n\nС уважением, {{ $('get user1').last().json.result[0].NAME }}\n{{ $('get user1').last().json.result[0].EMAIL }}\n",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1536,
+        0
+      ],
+      "id": "0343b8ec-734d-4da5-8e7a-d6f44d807c44",
+      "name": "first message",
+      "webhookId": "a7118ac0-0ca7-49d0-9b7a-673dd190a73a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "nPCq7qVu90Gp9w41",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('basic_link').last().json.link }}crm.company.get.json?id={{ $('getDeal').last().json.result.COMPANY_ID }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        960,
+        0
+      ],
+      "id": "fecff1e5-b7b8-4bbc-ad9b-ed79a430cc7e",
+      "name": "get company"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('basic_link').last().json.link }}crm.contact.get.json?id={{ $('getDeal').last().json.result.CONTACT_ID }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1344,
+        0
+      ],
+      "id": "1a9626c6-7095-47f7-9734-1e5191c15c9e",
+      "name": "get user"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('basic_link').last().json.link }}user.get.json?id={{ $('getDeal').last().json.result.ASSIGNED_BY_ID }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1152,
+        0
+      ],
+      "id": "726d6f89-882e-462f-aa45-f13f62c4eea1",
+      "name": "get user1"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "wlN8XxG2SL7WgVj3",
+          "mode": "list",
+          "cachedResultName": "Дожим счетов",
+          "cachedResultUrl": "/projects/hwd6FVgd6tZq10ZE/datatables/wlN8XxG2SL7WgVj3"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": false,
+            "deal_id": "={{ $('getDeal').last().json.result.ID }}",
+            "lead_id": "={{ $('getDeal').last().json.result.LEAD_ID }}",
+            "sum": "={{ $('getDeal').last().json.result.OPPORTUNITY }}",
+            "title": "={{ $('getDeal').item.json.result.TITLE }}",
+            "close_day": "={{ $('getDeal').last().json.result.CLOSEDATE }}",
+            "client_name": "={{ $('get user').item.json.result.NAME }}",
+            "company_name": "={{ $('get company').item.json.result.TITLE }}",
+            "email": "={{ $('get user').item.json.result.EMAIL[0].VALUE }}",
+            "phone": "={{ $('get user').item.json.result.PHONE[0].VALUE }}",
+            "manager_name": "={{ $('get user1').last().json.result[0].NAME }} {{ $('get user1').last().json.result[0].LAST_NAME }}",
+            "num_date": "={{ $('getDeal').item.json.result.COMMENTS }}",
+            "thread_letter_id": "={{ $json.threadId }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "deal_id",
+              "displayName": "deal_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "lead_id",
+              "displayName": "lead_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "close_day",
+              "displayName": "close_day",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "client_name",
+              "displayName": "client_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "company_name",
+              "displayName": "company_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "manager_name",
+              "displayName": "manager_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "num_date",
+              "displayName": "num_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "sum",
+              "displayName": "sum",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "thread_letter_id",
+              "displayName": "thread_letter_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1744,
+        0
+      ],
+      "id": "68da1f61-df3f-4795-9826-894884c68421",
+      "name": "Insert row"
+    },
+    {
+      "parameters": {
+        "url": "https://bt24.technoac.ru/rest/6/n556qpb01os4cxgf/crm.status.list.json",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "filter[ENTITY_ID]",
+              "value": "DEAL_STAGE_4"
+            },
+            {
+              "name": "select[]",
+              "value": "SORT"
+            },
+            {
+              "name": "order[SORT]",
+              "value": "ASC"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        688,
+        224
+      ],
+      "id": "833cc986-68fc-451b-a420-8ffc8a0abca9",
+      "name": "Get Stages from CRM"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "7471c488-d2e9-4fbb-8506-42a56dca37d9",
+              "leftValue": "={{ $json.result.STAGE_ID }}",
+              "rightValue": "C4:PREPAYMENT_INVOICE",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        720,
+        -256
+      ],
+      "id": "9538c283-d2e1-4f29-9f8d-1ff1c59a5a27",
+      "name": "PREPAYMENT_INVOICE"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "0c7f2f9c-6828-4819-9000-a45cada0da9d",
+              "leftValue": "={{ $json.result.STAGE_ID }}",
+              "rightValue": "PREPAYMENT_INVOICE",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        720,
+        16
+      ],
+      "id": "8d71c9f1-2146-4054-acd0-0bb5916ac868",
+      "name": "If valid Status stage"
+    },
+    {
+      "parameters": {
+        "chatId": "714939324",
+        "text": "=<b>ID:</b> {{ $json.result.ID }}\n<b>TITLE:</b> {{ $json.result.TITLE }}\n<b>STAGER_ID:</b> {{ $json.result.STAGE_ID }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        944,
+        -272
+      ],
+      "id": "f34d9275-33d5-4998-b932-b51fae4c0f18",
+      "name": "Send a text message",
+      "webhookId": "27ff7cdc-2564-4d09-b79d-01b7c1898a47",
+      "credentials": {
+        "telegramApi": {
+          "id": "fR5bHSxjo6L7lBdW",
+          "name": "Debug Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {
+          "includeSpamTrash": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        80,
+        640
+      ],
+      "id": "e843e2a2-913f-49b1-b660-dc3a702a2d42",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "nPCq7qVu90Gp9w41",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e32e05a1-0ed1-4c39-854e-9c9a33071415",
+              "name": "chatInput",
+              "value": "={{ $json.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        272,
+        640
+      ],
+      "id": "e3eadc58-558c-4b6f-85fd-c2e5b454cf77",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "Ты - обработчик ответов клиентов в gmail. Твоя задача определить один из трёх сценариев в ответном письме и ответить в формате json:\n1. Перенос оплаты:\n{\"status\": \"changed_deadline\", \"deadline\": \"2026-02-26T03:00:00+03:00\"}\n!Время в формате ISO 8601.\n2. Передали в бухгалтерию / на оплату:\n\"status\": \"sent_to_payment\"\n3. Пока пауза / не актуально / дорого:\n\"status\": \"stop\"\n\nПо любым другим сценариям ставь \"status\": \"unknown\""
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        480,
+        640
+      ],
+      "id": "34548581-0fda-453b-86ba-ce8445b1175f",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://bt24.technoac.ru/rest/6/n556qpb01os4cxgf/crm.deal.get.json?id={{ $('Webhook').item.json.body['data[FIELDS][ID]'] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        528,
+        -208
+      ],
+      "id": "9886c5e0-0afe-462b-950c-419ce37a7e6e",
+      "name": "getDeal2"
+    },
+    {
+      "parameters": {
+        "url": "=https://bt24.technoac.ru/rest/6/n556qpb01os4cxgf/crm.deal.get.json?id=70807",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        528,
+        16
+      ],
+      "id": "87221583-bf75-4a71-a029-ddfcc62450e1",
+      "name": "getDeal"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "typeVersion": 1,
+      "position": [
+        448,
+        864
+      ],
+      "id": "cd4b427b-1e3d-42e3-af5b-52711d252a0c",
+      "name": "DeepSeek Chat Model",
+      "credentials": {
+        "deepSeekApi": {
+          "id": "0JnLr6ObKPLyMAa4",
+          "name": "Remote-Team"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"status\": \"changed_deadline\",\n  \"dead_line\": \"2026-02-26T03:00:00+03:00\"\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        672,
+        864
+      ],
+      "id": "15393f1b-5c6c-48f7-bb0a-62e0692cf2e5",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "typeVersion": 1,
+      "position": [
+        672,
+        1024
+      ],
+      "id": "c892584d-296c-42c1-8d06-a85b9e322747",
+      "name": "DeepSeek Chat Model1",
+      "credentials": {
+        "deepSeekApi": {
+          "id": "0JnLr6ObKPLyMAa4",
+          "name": "Remote-Team"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.output.status }}",
+                    "rightValue": "changed_deadline",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "7faee365-6f6c-420d-b363-b5111e77cbab"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "changed_deadline"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "63225ecd-ca51-4f13-ba4f-851bd6ce09b0",
+                    "leftValue": "={{ $json.output.status }}",
+                    "rightValue": "sent_to_payment",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "sent_to_payment"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "604dd583-b7d1-42cb-920e-e3adb26d565a",
+                    "leftValue": "={{ $json.output.status }}",
+                    "rightValue": "stop",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "stop"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        960,
+        624
+      ],
+      "id": "47dcc3b2-9ccd-4b39-844e-e7fa94bc09d9",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "wlN8XxG2SL7WgVj3",
+          "mode": "list",
+          "cachedResultName": "Дожим счетов",
+          "cachedResultUrl": "/projects/hwd6FVgd6tZq10ZE/datatables/wlN8XxG2SL7WgVj3"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "thread_letter_id",
+              "keyValue": "={{ $('Gmail Trigger').item.json.threadId }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sum": 0,
+            "close_day": "="
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "deal_id",
+              "displayName": "deal_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "lead_id",
+              "displayName": "lead_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "close_day",
+              "displayName": "close_day",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "client_name",
+              "displayName": "client_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "company_name",
+              "displayName": "company_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "manager_name",
+              "displayName": "manager_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "num_date",
+              "displayName": "num_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "sum",
+              "displayName": "sum",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "thread_letter_id",
+              "displayName": "thread_letter_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1776,
+        640
+      ],
+      "id": "de67b1a4-681c-43f9-93f4-1b654e0fd8ec",
+      "name": "Update Deadline for 2 days"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "wlN8XxG2SL7WgVj3",
+          "mode": "list",
+          "cachedResultName": "Дожим счетов",
+          "cachedResultUrl": "/projects/hwd6FVgd6tZq10ZE/datatables/wlN8XxG2SL7WgVj3"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "thread_letter_id",
+              "keyValue": "={{ $('Gmail Trigger').item.json.threadId }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sum": 0
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "deal_id",
+              "displayName": "deal_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "lead_id",
+              "displayName": "lead_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "close_day",
+              "displayName": "close_day",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "client_name",
+              "displayName": "client_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "company_name",
+              "displayName": "company_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "manager_name",
+              "displayName": "manager_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "num_date",
+              "displayName": "num_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "sum",
+              "displayName": "sum",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "thread_letter_id",
+              "displayName": "thread_letter_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1776,
+        448
+      ],
+      "id": "418dda46-4df3-446f-b572-e3c6453a31e9",
+      "name": "Update customer Deadline"
+    },
+    {
+      "parameters": {
+        "operation": "deleteRows",
+        "dataTableId": {
+          "__rl": true,
+          "value": "wlN8XxG2SL7WgVj3",
+          "mode": "list",
+          "cachedResultName": "Дожим счетов",
+          "cachedResultUrl": "/projects/hwd6FVgd6tZq10ZE/datatables/wlN8XxG2SL7WgVj3"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "thread_letter_id",
+              "keyValue": "={{ $('Gmail Trigger').item.json.threadId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1296,
+        832
+      ],
+      "id": "a503ccd9-da22-499e-92ce-774c42cf1046",
+      "name": "Delete Payment"
+    },
+    {
+      "parameters": {
+        "resource": "thread",
+        "operation": "reply",
+        "threadId": "={{ $('Gmail Trigger').item.json.threadId }}",
+        "messageId": "={{ $json.messages.last().id }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1536,
+        448
+      ],
+      "id": "49222272-b707-43cd-8a9e-8650dfbcb630",
+      "name": "Reply to a message",
+      "webhookId": "511e1213-9e05-4b22-b92c-cfd993fe1acb",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "nPCq7qVu90Gp9w41",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "thread",
+        "operation": "get",
+        "threadId": "={{ $('Gmail Trigger').item.json.threadId }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1296,
+        448
+      ],
+      "id": "f855c427-9570-4d1d-8042-4bfcff7feeca",
+      "name": "Get a thread",
+      "webhookId": "f7a14d67-52f5-4af0-a918-510e39cd7944",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "nPCq7qVu90Gp9w41",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "thread",
+        "operation": "reply",
+        "threadId": "={{ $('Gmail Trigger').item.json.threadId }}",
+        "messageId": "={{ $json.messages.last().id }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1536,
+        640
+      ],
+      "id": "f49ac6b3-330a-467c-9416-24ded39dfc8b",
+      "name": "Reply to a message1",
+      "webhookId": "511e1213-9e05-4b22-b92c-cfd993fe1acb",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "nPCq7qVu90Gp9w41",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "thread",
+        "operation": "get",
+        "threadId": "={{ $('Gmail Trigger').item.json.threadId }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1296,
+        640
+      ],
+      "id": "019123c7-8d36-438c-b445-0e28aba2ba10",
+      "name": "Get a thread1",
+      "webhookId": "f7a14d67-52f5-4af0-a918-510e39cd7944",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "nPCq7qVu90Gp9w41",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.srv1147576.hstgr.cloud",
+            "user-agent": "Bitrix24 Webhook Engine",
+            "content-length": "372",
+            "accept-encoding": "gzip",
+            "content-type": "application/x-www-form-urlencoded",
+            "x-forwarded-for": "89.208.228.219",
+            "x-forwarded-host": "n8n.srv1147576.hstgr.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "5f765a875a01",
+            "x-real-ip": "89.208.228.219"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "event": "ONCRMDEALUPDATE",
+            "event_handler_id": "835",
+            "data[FIELDS][ID]": "62979",
+            "ts": "1771227229",
+            "auth[domain]": "bt24.technoac.ru",
+            "auth[client_endpoint]": "https://bt24.technoac.ru/rest/",
+            "auth[server_endpoint]": "https://oauth.bitrix24.tech/rest/",
+            "auth[member_id]": "b797fc9ec733bf52668e4685680c8fbf",
+            "auth[application_token]": "37it6f1u6fjzhzf6ux03jqg1w6q3hgh0"
+          },
+          "webhookUrl": "https://n8n.srv1147576.hstgr.cloud/webhook/deal-followup",
+          "executionMode": "production"
+        }
+      }
+    ],
+    "Gmail Trigger": [
+      {
+        "json": {
+          "id": "19c824842d0e6672",
+          "threadId": "19c82409eb0bbc04",
+          "labelIds": [
+            "UNREAD",
+            "IMPORTANT",
+            "CATEGORY_PERSONAL",
+            "INBOX"
+          ],
+          "sizeEstimate": 10361,
+          "headers": {
+            "delivered-to": "Delivered-To: zakhar@remote-team.ru",
+            "received": "Received: from mail-sor-f41.google.com (mail-sor-f41.google.com. [209.85.220.41])\r\n        by mx.google.com with SMTPS id 4fb4d7f45d1cf-65eaba1a3c1sor487065a12.14.2026.02.21.14.18.19\r\n        for <zakhar@remote-team.ru>\r\n        (Google Transport Security);\r\n        Sat, 21 Feb 2026 14:18:19 -0800 (PST)",
+            "x-received": "X-Received: by 2002:a05:6402:210d:b0:65b:a76d:6feb with SMTP id\r\n 4fb4d7f45d1cf-65ea4ef2695mr2732527a12.16.1771712298872; Sat, 21 Feb 2026\r\n 14:18:18 -0800 (PST)",
+            "arc-seal": "ARC-Seal: i=1; a=rsa-sha256; t=1771712299; cv=none;\r\n        d=google.com; s=arc-20240605;\r\n        b=URtMQWd9sMugI2/ijXcrwkkKur/Zvvpdgra9E+u+H5M289Ahtjn5KLbeEWC2fHLbxa\r\n         B91t4/iN3V/dSw2z8ekuQjxeujohHfzz8JRlMfsN5dYvRig5o0musFq1pWIeIwADEqEe\r\n         6polSXFOPSdy1etTHYAdPafukafVFZMEZx6Tan/0zwMBwiOunN0VpI0AhYQ0f4Za4Dtn\r\n         sxvzU7D6rCX7dNraQHnkhiM5pi+8WBegwh2Ozn1crKzAXHZMUnBUl/fQ8qGtIoq5ekWH\r\n         4fUw3pzKTNT5h1KOUliRNebhpW11b9RbXXeSwV/9cMNiLKJOKQP+lx7zcKFpAhN+3eRk\r\n         QO5g==",
+            "arc-message-signature": "ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;\r\n        h=to:subject:message-id:date:from:in-reply-to:references:mime-version\r\n         :dkim-signature;\r\n        bh=LnRwGtBYRDKy7A4wZheNPqXn/JukevvJLhSmm9Q8KAA=;\r\n        fh=h5KRPXyKq5Nr8OUrsD31N6P4ZPdiNRlSYibS09e0JLc=;\r\n        b=fVexsfJrGtn39eGWLp0BalhGdfG99RtaPrk7W/mnyfoKyn/MwXB41aW+qvti8AdPgR\r\n         eRLybIoKZdbOX/7eZrOQaMJncjR6NXIwICv2bgSMUkiOmZf14+y6t10apAacaWVZogXY\r\n         RlSvC1z2sSi45z/w/g5YeY+jRUFWmt0+HLzfg3GRIOiKLg2Yg2ZXS6a4cLXv4Eqs+ugh\r\n         idd3uJoPZCdDY1vaTTyACZkQ0YiJUMFe+2j85cwBivUlcycdzogwSzrJWQGkeLvYYSyL\r\n         RcVGzSxMuhtDe5CvKTyIxMIgaMp3nlBDw8Ibp0Y7F/0GVKW1N/p3G7Mpwb0i7rubVSz5\r\n         lQ8Q==;\r\n        darn=remote-team.ru",
+            "arc-authentication-results": "ARC-Authentication-Results: i=1; mx.google.com; arc=none",
+            "return-path": "Return-Path: <zakhar.proger@gmail.com>",
+            "received-spf": "Received-SPF: pass (google.com: domain of zakhar.proger@gmail.com designates 209.85.220.41 as permitted sender) client-ip=209.85.220.41;",
+            "authentication-results": "Authentication-Results: mx.google.com;\r\n       dkim=pass header.i=@gmail.com header.s=20230601 header.b=kMBTe++d;\r\n       arc=pass (i=1);\r\n       spf=pass (google.com: domain of zakhar.proger@gmail.com designates 209.85.220.41 as permitted sender) smtp.mailfrom=zakhar.proger@gmail.com;\r\n       dmarc=pass (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com;\r\n       dara=neutral header.i=@remote-team.ru",
+            "dkim-signature": "DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;\r\n        d=gmail.com; s=20230601; t=1771712299; x=1772317099; darn=remote-team.ru;\r\n        h=to:subject:message-id:date:from:in-reply-to:references:mime-version\r\n         :from:to:cc:subject:date:message-id:reply-to;\r\n        bh=LnRwGtBYRDKy7A4wZheNPqXn/JukevvJLhSmm9Q8KAA=;\r\n        b=kMBTe++dDn9o/SU9/VAQnawywI4YO/jBfbmDqlKi3iPX8q+amRTIA8170kuYru6CCB\r\n         OgjWK7Wwv4dY8e1I38NPBBGD4hCiY9WtGR4dCHi2g/dCHQG9gEUESi3xjFaJaqQ4otiB\r\n         vXqScjs7rm3wsBB9qupiBPTcaexqSExmOpyEt68xtaeytqwNXSKMkYkuHUeYhwsS24/F\r\n         7JIgYVcXZzzN+Pjq250BraB/+O9YEotgNU5T9lrHq6FB2SAibQ77Qzkb0+2L5gpX0x5Z\r\n         2O8X6ch2Qx9Aq7UrGelHMyoMYgbb+am22Ae04QtC5rhjm/GnKFa+xlo7MR/HVu2yqimx\r\n         C1IQ==",
+            "x-google-dkim-signature": "X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;\r\n        d=1e100.net; s=20230601; t=1771712299; x=1772317099;\r\n        h=to:subject:message-id:date:from:in-reply-to:references:mime-version\r\n         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id\r\n         :reply-to;\r\n        bh=LnRwGtBYRDKy7A4wZheNPqXn/JukevvJLhSmm9Q8KAA=;\r\n        b=XFEYroywW1EnF8TozjiLxELGRRG2ONK9FlSa1vyQHu/mMSuYR+dGWq5BdA55R0ei+T\r\n         eyfUKgdxIFkNzzrj/Qp4t9OAtIfye5W3WegJC5stlpUfzJjkZT9i21JHrlRMT/aBuf8k\r\n         6gD4tE+v5wtvLiWBWv2PQyoJC8p5ClDQXvSemDfol94/cWizWiqeV7bh+L92BXlVQMDY\r\n         IDJmP8Cyjke+cvEE01deLh8LuUsZPgDYi4bqaGIjR6jUsrCqZ+8GR2UwAHU22wm5q3jQ\r\n         7pAHiTZwuL+n3EtJMcmEOqSJ7M5m+71tIA19Op0OB5JMVw5+D30YirVqtVUqRUgHXOP6\r\n         C38Q==",
+            "x-gm-message-state": "X-Gm-Message-State: AOJu0Yzrx+5ZaZhbbBl0bxCEO4LzyeVwobO5awWDJ4NIbcE4U80RKt6N\r\n\tT3BAqhIQW1cXHuCg+HZjssJqetHDBseEb2giiTSvwSwZ8uXJP7TkjnD3mGNyDxRNWaedX9j5mDg\r\n\t0N9/eD0qmE7jF8omTGnJ2wWSRUEIUZonV6QvkqTg=",
+            "x-gm-gg": "X-Gm-Gg: AZuq6aJdbrWLwrs7iLd/kqWFbrYCJop9jIXDR7HLv8VLsrPWzDfctvwFPlkaAeJvyxh\r\n\t1pXRhJuCZYuHe+3yHl4IvPcbWm0PVln3+q+D8yw5rJrrvvOPSpaRkvvdjsCyz8fyoP4zQaBCHQv\r\n\tOpiQQ15oAgYVTEdTDI1jeM6lx2EMfnrj2/Z5NOSd+jtm89kDfoUMlDkFxKjryX2It2mjei8cCGU\r\n\tjByQpw5KZK8qtnnr4egznIXpz38xwLNQwiVcRf2Kpnb5Lj9V0lqH63L3JU4HJpq5n0ofUNbv+dy\r\n\t+LOI4r7oA98gQp5KXvb+",
+            "mime-version": "MIME-Version: 1.0",
+            "references": "References: <CALh+2wMeTMUMjx8kwoofuNi=CuxGbBMO9XiXu5LXY_ew1v4NqA@mail.gmail.com>",
+            "in-reply-to": "In-Reply-To: <CALh+2wMeTMUMjx8kwoofuNi=CuxGbBMO9XiXu5LXY_ew1v4NqA@mail.gmail.com>",
+            "from": "From: =?UTF-8?B?0JfQsNGF0LDRgCDQltGD0YDQsNCy0LvRkdCy?= <zakhar.proger@gmail.com>",
+            "date": "Date: Sun, 22 Feb 2026 01:18:06 +0300",
+            "x-gm-features": "X-Gm-Features: AaiRm50FH7-fObfniHaJV4lcoMkRs6D4_wRTM2iPvL0AILXj143iNIaGk-CNwyc",
+            "message-id": "Message-ID: <CAJChrZvZHa7vhWBbXmi=VAT1i-pPgHej7mXZEn4Q4wYZbDvHrg@mail.gmail.com>",
+            "subject": "Subject: =?UTF-8?B?UmU6INCi0JXQpdCd0J4t0JDQoSDQodGH0LXRgiDihJYg0JjQnS02NjQg0L7RgiAxOS4wMg==?=\r\n\t=?UTF-8?B?LjIwMjYg0LTQu9GPINCQ0J/QoSDQmNCd0JbQmNCd0JjQoNCY0J3QkyDQntCe0J5f0JzQvtGB0LrQstCw?=",
+            "to": "To: zakhar@remote-team.ru",
+            "content-type": "Content-Type: multipart/alternative; boundary=\"00000000000037f55c064b5cea9a\""
+          },
+          "html": "<div dir=\"ltr\"><span style=\"color:rgb(249,250,251);font-family:quote-cjk-patch,Inter,system-ui,-apple-system,BlinkMacSystemFont,&quot;Segoe UI&quot;,Roboto,Oxygen,Ubuntu,Cantarell,&quot;Open Sans&quot;,&quot;Helvetica Neue&quot;,sans-serif;font-size:16px;background-color:rgb(21,21,23)\">Добрый день. Переносим оплату ориентировочно на следующую неделю<br><br></span></div><br><div class=\"gmail_quote gmail_quote_container\"><div dir=\"ltr\" class=\"gmail_attr\">вс, 22 февр. 2026 г. в 01:09, &lt;<a href=\"mailto:zakhar@remote-team.ru\">zakhar@remote-team.ru</a>&gt;:<br></div><blockquote class=\"gmail_quote\" style=\"margin:0px 0px 0px 0.8ex;border-left:1px solid rgb(204,204,204);padding-left:1ex\">Уважаемый клиент!<br>\n<br>\nТолько что отправил(а) вам на почту Счет № ИН-664 на сумму 7437756.00<br>\nруб. — согласно вашей заявке.<br>\n<br>\nПрошу подтвердить получение счета и дату оплаты.<br>\nЕсли остались какие-то вопросы по счету или номенклатуре, свяжитесь со<br>\nмной по контактам в подписи.<br>\n<br>\nС уважением, Максим<br>\n<a>timofeev@technoac.ru</a><br>\n</blockquote></div>\n",
+          "text": "Добрый день. Переносим оплату ориентировочно на следующую неделю\n\n\nвс, 22 февр. 2026 г. в 01:09, <zakhar@remote-team.ru>:\n\n> Уважаемый клиент!\n>\n> Только что отправил(а) вам на почту Счет № ИН-664 на сумму 7437756.00\n> руб. — согласно вашей заявке.\n>\n> Прошу подтвердить получение счета и дату оплаты.\n> Если остались какие-то вопросы по счету или номенклатуре, свяжитесь со\n> мной по контактам в подписи.\n>\n> С уважением, Максим\n> timofeev@technoac.ru\n>\n",
+          "textAsHtml": "<p>&Dcy;&ocy;&bcy;&rcy;&ycy;&jcy; &dcy;&iecy;&ncy;&softcy;. &Pcy;&iecy;&rcy;&iecy;&ncy;&ocy;&scy;&icy;&mcy; &ocy;&pcy;&lcy;&acy;&tcy;&ucy; &ocy;&rcy;&icy;&iecy;&ncy;&tcy;&icy;&rcy;&ocy;&vcy;&ocy;&chcy;&ncy;&ocy; &ncy;&acy; &scy;&lcy;&iecy;&dcy;&ucy;&yucy;&shchcy;&ucy;&yucy; &ncy;&iecy;&dcy;&iecy;&lcy;&yucy;</p><p>&vcy;&scy;, 22 &fcy;&iecy;&vcy;&rcy;. 2026&#x202F;&gcy;. &vcy; 01:09, &lt;<a href=\"mailto:zakhar@remote-team.ru\">zakhar@remote-team.ru</a>&gt;:</p><p>&gt; &Ucy;&vcy;&acy;&zhcy;&acy;&iecy;&mcy;&ycy;&jcy; &kcy;&lcy;&icy;&iecy;&ncy;&tcy;!<br/>&gt;<br/>&gt; &Tcy;&ocy;&lcy;&softcy;&kcy;&ocy; &chcy;&tcy;&ocy; &ocy;&tcy;&pcy;&rcy;&acy;&vcy;&icy;&lcy;(&acy;) &vcy;&acy;&mcy; &ncy;&acy; &pcy;&ocy;&chcy;&tcy;&ucy; &Scy;&chcy;&iecy;&tcy; &numero; &Icy;&Ncy;-664 &ncy;&acy; &scy;&ucy;&mcy;&mcy;&ucy; 7437756.00<br/>&gt; &rcy;&ucy;&bcy;. &mdash; &scy;&ocy;&gcy;&lcy;&acy;&scy;&ncy;&ocy; &vcy;&acy;&shcy;&iecy;&jcy; &zcy;&acy;&yacy;&vcy;&kcy;&iecy;.<br/>&gt;<br/>&gt; &Pcy;&rcy;&ocy;&shcy;&ucy; &pcy;&ocy;&dcy;&tcy;&vcy;&iecy;&rcy;&dcy;&icy;&tcy;&softcy; &pcy;&ocy;&lcy;&ucy;&chcy;&iecy;&ncy;&icy;&iecy; &scy;&chcy;&iecy;&tcy;&acy; &icy; &dcy;&acy;&tcy;&ucy; &ocy;&pcy;&lcy;&acy;&tcy;&ycy;.<br/>&gt; &IEcy;&scy;&lcy;&icy; &ocy;&scy;&tcy;&acy;&lcy;&icy;&scy;&softcy; &kcy;&acy;&kcy;&icy;&iecy;-&tcy;&ocy; &vcy;&ocy;&pcy;&rcy;&ocy;&scy;&ycy; &pcy;&ocy; &scy;&chcy;&iecy;&tcy;&ucy; &icy;&lcy;&icy; &ncy;&ocy;&mcy;&iecy;&ncy;&kcy;&lcy;&acy;&tcy;&ucy;&rcy;&iecy;, &scy;&vcy;&yacy;&zhcy;&icy;&tcy;&iecy;&scy;&softcy; &scy;&ocy;<br/>&gt; &mcy;&ncy;&ocy;&jcy; &pcy;&ocy; &kcy;&ocy;&ncy;&tcy;&acy;&kcy;&tcy;&acy;&mcy; &vcy; &pcy;&ocy;&dcy;&pcy;&icy;&scy;&icy;.<br/>&gt;<br/>&gt; &Scy; &ucy;&vcy;&acy;&zhcy;&iecy;&ncy;&icy;&iecy;&mcy;, &Mcy;&acy;&kcy;&scy;&icy;&mcy;<br/>&gt; <a href=\"mailto:timofeev@technoac.ru\">timofeev@technoac.ru</a><br/>&gt;</p>",
+          "subject": "Re: ТЕХНО-АС Счет № ИН-664 от 19.02.2026 для АПС ИНЖИНИРИНГ ООО_Москва",
+          "references": "<CALh+2wMeTMUMjx8kwoofuNi=CuxGbBMO9XiXu5LXY_ew1v4NqA@mail.gmail.com>",
+          "date": "2026-02-21T22:18:06.000Z",
+          "to": {
+            "value": [
+              {
+                "address": "zakhar@remote-team.ru",
+                "name": ""
+              }
+            ],
+            "html": "<span class=\"mp_address_group\"><a href=\"mailto:zakhar@remote-team.ru\" class=\"mp_address_email\">zakhar@remote-team.ru</a></span>",
+            "text": "zakhar@remote-team.ru"
+          },
+          "from": {
+            "value": [
+              {
+                "address": "zakhar.proger@gmail.com",
+                "name": "Захар Журавлёв"
+              }
+            ],
+            "html": "<span class=\"mp_address_group\"><span class=\"mp_address_name\">&#x417;&#x430;&#x445;&#x430;&#x440; &#x416;&#x443;&#x440;&#x430;&#x432;&#x43B;&#x451;&#x432;</span> &lt;<a href=\"mailto:zakhar.proger@gmail.com\" class=\"mp_address_email\">zakhar.proger@gmail.com</a>&gt;</span>",
+            "text": "\"Захар Журавлёв\" <zakhar.proger@gmail.com>"
+          },
+          "messageId": "<CAJChrZvZHa7vhWBbXmi=VAT1i-pPgHej7mXZEn4Q4wYZbDvHrg@mail.gmail.com>",
+          "inReplyTo": "<CALh+2wMeTMUMjx8kwoofuNi=CuxGbBMO9XiXu5LXY_ew1v4NqA@mail.gmail.com>"
+        }
+      }
+    ],
+    "first message": [
+      {
+        "json": {
+          "id": "19c82409eb0bbc04",
+          "threadId": "19c82409eb0bbc04",
+          "labelIds": [
+            "SENT"
+          ]
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "basic_link",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "basic_link": {
+      "main": [
+        [
+          {
+            "node": "getDeal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get company": {
+      "main": [
+        [
+          {
+            "node": "get user1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get user": {
+      "main": [
+        [
+          {
+            "node": "first message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get user1": {
+      "main": [
+        [
+          {
+            "node": "get user",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert row": {
+      "main": [
+        []
+      ]
+    },
+    "PREPAYMENT_INVOICE": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If valid Status stage": {
+      "main": [
+        [
+          {
+            "node": "get company",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "getDeal2": {
+      "main": [
+        [
+          {
+            "node": "PREPAYMENT_INVOICE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "getDeal": {
+      "main": [
+        [
+          {
+            "node": "If valid Status stage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "first message": {
+      "main": [
+        [
+          {
+            "node": "Insert row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Get a thread",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get a thread1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Delete Payment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reply to a message": {
+      "main": [
+        [
+          {
+            "node": "Update customer Deadline",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a thread": {
+      "main": [
+        [
+          {
+            "node": "Reply to a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a thread1": {
+      "main": [
+        [
+          {
+            "node": "Reply to a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reply to a message1": {
+      "main": [
+        [
+          {
+            "node": "Update Deadline for 2 days",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "4f493944-7e19-4559-99d2-adb409119010",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "df73534fbc51357ab36ceae3b7d8c398f5402db5762f3e25c14efa1846cbc529"
+  },
+  "id": "ZV9c8ad6nuklKOav7MI0i",
+  "tags": []
+}
